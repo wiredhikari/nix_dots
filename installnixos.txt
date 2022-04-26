@@ -1,0 +1,13 @@
+these notes are pure dump, created them as i am lazy to reread docs
+create partitions
+
+
+
+mount /dev/disk/by-label/nixos /mnt
+mkdir -p /mnt/boot
+mount /dev/disk/by-label/boot /mnt/boot
+nixos-generate-config --root /mnt
+nano /mnt/etc/nixos/configuration.nix
+nixos-install
+reboot 
+:)
