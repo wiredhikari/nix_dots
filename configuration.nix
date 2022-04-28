@@ -3,7 +3,7 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-
+import <nixpkgs> { overlays = [ nixpkgs-f2k ]; }
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -41,13 +41,31 @@
    services.xserver.enable = true;
    services.xserver.displayManager.lightdm.enable = true;
    services.xserver.displayManager.defaultSession = "none+awesome";
-   services.xserver.windowManager.awesome.enable = true;
-  
-  # Nvidia settings
-  # services.xserver.videoDrivers = [ "nvidia" ];
-     
+   services.xserver.windowManager.awesome = {
+	enable = true;
+        luaModules = with pkgs.luaPackages; [
+        luarocks # is the package manager for Lua modules 
+      ]; 
+	}; 	
+	  
+   services.xserver.displayManager.sessionCommands = ''
+    ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0 "Unknown AMD Radeon GPU @ pci:0000:05:00.0"
+	'';
 
-  # Configure keymap in X11
+# Nvidia settings
+    services.xserver.videoDrivers = [ "nvidia" ];
+   # hardware.nvidia.powerManagement.enable = true; 
+    hardware.nvidia.nvidiaSettings = true;
+    hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
+    hardware.nvidia.nvidiaPersistenced = true;
+    hardware.nvidia.modesetting.enable = true;
+    hardware.nvidia.prime = {
+offload.enable = true;
+intelBusId = "PCI:0:2:0";
+nvidiaBusId = "PCI:1:0:0";
+};
+# Configure keymap in X11
+
    services.xserver.layout = "us";
   # services.xserver.xkbOptions = "eurosign:e";
 
@@ -58,6 +76,7 @@
    sound.enable = true;
    hardware.pulseaudio.enable = true;
 
+
   # Enable touchpad support (enabled default in most desktopManager).
    services.xserver.libinput.enable = true;
    services.xserver.libinput.touchpad.tapping = true;
@@ -67,13 +86,20 @@
      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
      createHome = true;
      uid = 1000;
-     shell = "/run/current-system/sw/bin/zsh";	
+     shell = "/run/current-system/sw/bin/zsh";	 
+     packages = [
+	pkgs.ferdi
+	pkgs.zellij
+	pkgs.vscode
+	pkgs.zenith-nvidia
+	];
 };
 programs.zsh.enable = true;
   # List packages installed in system profile. To search, run:
   # $ nix search wget
    environment.systemPackages = with pkgs; [
      vim 
+     neovim
      wget
      firefox-beta-bin
      alacritty
@@ -85,8 +111,15 @@ programs.zsh.enable = true;
      pipewire
      pavucontrol
      networkmanagerapplet 
- ];
-
+     emacs
+     arandr 	
+     nixFlakes
+     gparted
+     cinnamon.nemo
+     linuxPackages.nvidia_x11
+     libgnome-keyring 
+];
+ 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
    programs.mtr.enable = true;
@@ -97,7 +130,7 @@ programs.zsh.enable = true;
 
  
   # List services that you want to enable:
-
+ # nixpkgs.config.allowUnfree = true;
   # Enable the OpenSSH daemon.
    services.openssh.enable = true;
   
