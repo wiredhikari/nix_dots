@@ -10,7 +10,25 @@ import <nixpkgs> { overlays = [ nixpkgs-f2k ]; }
       ./hardware-configuration.nix
     ];
 
-  # Use the systemd-boot EFI boot loader.
+  nix = {
+    package = pkgs.nixFlakes; # or versioned attributes like nix_2_7
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+   };
+  inputs.nixpkgs-f2k.url = "github:fortuneteller2k/nixpkgs-f2k";
+
+  outputs = { self, nixpkgs-f2k, ... }@inputs: {
+    nixosConfigurations.desktop = inputs.nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        { nixpkgs.overlays = [ nixpkgs-f2k.overlay ]; }
+        ./configuration.nix
+      ];
+    };
+  };
+ 
+ # Use the systemd-boot EFI boot loader. 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
