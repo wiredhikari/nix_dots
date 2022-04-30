@@ -2,37 +2,32 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
-import <nixpkgs> { overlays = [ nixpkgs-f2k ]; }
+{ config, pkgs, lib, inputs, outputs, ... }:
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
-
   nix = {
-    package = pkgs.nixFlakes; # or versioned attributes like nix_2_7
+    package = inputs.nix.packages.x86_64-linux.nix; 
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
    };
-  inputs.nixpkgs-f2k.url = "github:fortuneteller2k/nixpkgs-f2k";
 
-  outputs = { self, nixpkgs-f2k, ... }@inputs: {
-    nixosConfigurations.desktop = inputs.nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        { nixpkgs.overlays = [ nixpkgs-f2k.overlay ]; }
-        ./configuration.nix
-      ];
-    };
-  };
+  nixpkgs.overlays = [
+    (builtins.getFlake "github:fortuneteller2k/nixpkgs-f2k").overlay
+  ];
+
+
+#nix.package = pkgs.nixUnstable; 
+
  
- # Use the systemd-boot EFI boot loader. 
+# Use the systemd-boot EFI boot loader. 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-   networking.hostName = "wired"; # Define your hostname.
+   networking.hostName = "nixos"; # Define your hostname.
   #networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
    networking.networkmanager.enable = true; 
   # Set your time zone.
@@ -63,9 +58,10 @@ import <nixpkgs> { overlays = [ nixpkgs-f2k ]; }
 	enable = true;
         luaModules = with pkgs.luaPackages; [
         luarocks # is the package manager for Lua modules 
-      ]; 
+     	lgi
+	vicious
+	 ]; 
 	}; 	
-	  
    services.xserver.displayManager.sessionCommands = ''
     ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0 "Unknown AMD Radeon GPU @ pci:0000:05:00.0"
 	'';
@@ -101,7 +97,7 @@ nvidiaBusId = "PCI:1:0:0";
   # Define a user account. Don't forget to set a password with ‘passwd’.
    users.users.hikari = {
      isNormalUser = true;
-     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+     extraGroups = [ "wheel"  "docker"  ]; # Enable ‘sudo’ for the user.
      createHome = true;
      uid = 1000;
      shell = "/run/current-system/sw/bin/zsh";	 
@@ -110,6 +106,7 @@ nvidiaBusId = "PCI:1:0:0";
 	pkgs.zellij
 	pkgs.vscode
 	pkgs.zenith-nvidia
+	pkgs.eww
 	];
 };
 programs.zsh.enable = true;
@@ -121,7 +118,7 @@ programs.zsh.enable = true;
      wget
      firefox-beta-bin
      alacritty
-     awesome
+     awesome-git
      wpa_supplicant
      networkmanager
      git
@@ -136,7 +133,12 @@ programs.zsh.enable = true;
      cinnamon.nemo
      linuxPackages.nvidia_x11
      libgnome-keyring 
-];
+    (writeShellScriptBin "nixFlakes" ''
+      exec ${nixFlakes}/bin/nix --experimental-features "nix-command flakes" "$@"
+    '')
+  ];
+
+
  
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -148,6 +150,7 @@ programs.zsh.enable = true;
 
  
   # List services that you want to enable:
+ # x.package = pkgs.nixUnstable; 
  # nixpkgs.config.allowUnfree = true;
   # Enable the OpenSSH daemon.
    services.openssh.enable = true;
