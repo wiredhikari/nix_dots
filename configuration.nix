@@ -66,6 +66,9 @@
     ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0 "Unknown AMD Radeon GPU @ pci:0000:05:00.0"
 	'';
 
+ #Docker
+  virtualisation.docker.enable = true;
+
 # Nvidia settings
     services.xserver.videoDrivers = [ "nvidia" ];
    # hardware.nvidia.powerManagement.enable = true; 
