@@ -2,22 +2,19 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, inputs, outputs, ... }:
+{ config, pkgs, lib,inputs, outputs, ... }:
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
   nix = {
-    package = inputs.nix.packages.x86_64-linux.nix; 
+    package = pkgs.nixUnstable; 
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
    };
 
-  nixpkgs.overlays = [
-    (builtins.getFlake "github:fortuneteller2k/nixpkgs-f2k").overlay
-  ];
 
 
 #nix.package = pkgs.nixUnstable; 
@@ -110,6 +107,9 @@ nvidiaBusId = "PCI:1:0:0";
 	pkgs.vscode
 	pkgs.zenith-nvidia
 	pkgs.eww
+	
+	#docker
+	pkgs.docker
 	];
 };
 programs.zsh.enable = true;
