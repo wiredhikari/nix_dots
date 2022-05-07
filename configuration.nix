@@ -102,14 +102,17 @@ nvidiaBusId = "PCI:1:0:0";
      uid = 1000;
      shell = "/run/current-system/sw/bin/zsh";	 
      packages = [
+
 	pkgs.ferdi
 	pkgs.zellij
 	pkgs.vscode
 	pkgs.zenith-nvidia
 	pkgs.eww
-	
-	#docker
+ 	pkgs.bat
+	pkgs.spotify
 	pkgs.docker
+	pkgs.google-chrome
+	pkgs.gnome.gnome-keyring #enable the keyring daemon
 	];
 };
 programs.zsh.enable = true;
