@@ -8,8 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-    ];
-
+ ];
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -55,7 +54,7 @@ services.openssh = {
 #  passwordAuthentication = false; # default true
 #  permitRootLogin = "yes";
 #  challengeResponseAuthentication = false;
-};
+    };
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
@@ -70,9 +69,10 @@ services.openssh = {
    users.users.hikari = {
      isNormalUser = true;
      extraGroups = [ "wheel" "docker" ]; # Enable ‘sudo’ for the user.
-      };
+       };
 nix.package = pkgs.nixFlakes;   
- nix.extraOptions = ''experimental-features = nix-command flakes'';
+nix.trustedUsers = [ "root" "hikari" ];
+nix.extraOptions = ''experimental-features = nix-command flakes'';
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   nixpkgs.config.allowUnfree = true;
@@ -84,13 +84,40 @@ nix.package = pkgs.nixFlakes;
     wget
     firefox-beta-bin
     wget
+    git
+    mob
     cargo
     rustc
     gnome.gnome-tweaks
     gnomeExtensions.animation-tweaks
     gparted
     docker
+   ntfs3g 
+    jmtpfs
+    usbutils
+    mtpfs
+    gdrive
+    gmtp
+    gvfs
+    libmtp
+    direnv
+    opera
+	ntfsprogs
     home-manager
+    nix
+    alacritty
+      openvpn
+
+   # yubikey
+   yubikey-agent
+   yubioath-desktop
+   yubico-piv-tool
+   yubikey-personalization-gui
+   age-plugin-yubikey
+   yubikey-personalization
+   yubikey-touch-detector
+   yubikey-manager-qt
+   yubikey-manager
 	];
 programs.zsh.enable = true;
 users.defaultUserShell = pkgs.zsh;
@@ -101,6 +128,12 @@ users.defaultUserShell = pkgs.zsh;
      enable = true;
      enableSSHSupport = true;
    };
+
+  # VPN
+    services.openvpn.servers = {
+    # officeVPN  = { config = '' config /home/hikari/.config/openvpn/officeVPN.conf ''; };
+  };
+
 
   # Nvidia settings
     services.xserver.videoDrivers = [ "nvidia" ];
@@ -129,7 +162,7 @@ nvidiaBusId = "PCI:1:0:0";
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.11"; # Did you read the comment?
+  system.stateVersion = "unstable"; # Did you read the comment?
 
 }
 
