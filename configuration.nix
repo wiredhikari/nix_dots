@@ -95,18 +95,25 @@ nix.extraOptions = ''experimental-features = nix-command flakes'';
    ntfs3g 
     jmtpfs
     usbutils
-    mtpfs
-    gdrive
+teams   
+ mtpfs
+solc    
+solc-select
+slither-analyzer
+gdrive
     gmtp
     gvfs
     libmtp
     direnv
-    opera
 	ntfsprogs
     home-manager
     nix
     alacritty
       openvpn
+   opera
+   # mouse
+   logiops
+
 
    # yubikey
    yubikey-agent
